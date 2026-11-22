@@ -4,8 +4,8 @@ pages_build_output_dir = "public"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "jasakita_db"
-database_id = "ISI_DATABASE_ID_D1_ANDA_DI_SINI"
+database_name = "jasapro-db"
+database_id = "93eb263b-d79a-4aa8-b061-3a4b52fb9be7"
 
 [vars]
 APP_NAME = "JasaKita Pro"
