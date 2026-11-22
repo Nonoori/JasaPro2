@@ -1,0 +1,15 @@
+name = "jasakita-pro-marketplace"
+compatibility_date = "2026-01-01"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "jasakita_db"
+database_id = "ISI_DATABASE_ID_D1_ANDA_DI_SINI"
+
+[vars]
+APP_NAME = "JasaKita Pro"
+APP_SLOGAN = "Ekosistem Jasa Harian & Langganan Terpercaya — Adil untuk Semua Peran"
+SUPERADMIN_WA = "6283124443888"
+SUPERADMIN_EMAIL = "owner@jasakita.id"
+MIDTRANS_IS_PRODUCTION = "false"

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Korwil (Koordinator Wilayah) — JasaKita Pro</title>
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <div class="disclaimer-bar">📍 PORTAL KOORDINATOR WILAYAH (KORWIL) • Rekrut Mitra, Kawal Kualitas & Nikmati Bagi Hasil Wilayah</div>
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="/index.html" class="brand-box">
+        <div class="brand-logo" data-brand-logo>🛡️</div>
+        <div>
+          <div class="brand-title"><span data-brand-name>JasaKita Pro</span> • Korwil</div>
+          <span class="brand-slogan" id="kwAreaLabel">Wilayah Binaan</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="/index.html" class="btn btn-outline btn-sm">Katalog Publik</a>
+        <button class="btn btn-danger btn-sm" onclick="JK.logout()">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- KARTU KESEJAHTERAAN & TARGET UMR 6 JUTA -->
+    <div class="grid-3">
+      <div class="card">
+        <div style="font-size:0.8rem; color:var(--muted);">Saldo Komisi Wilayah (Bisa Ditarik)</div>
+        <h2 id="kwBalance" style="color:var(--primary); font-size:1.5rem;">Rp0</h2>
+        <button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="withdrawKorwil()">💸 Ajukan Withdraw</button>
+      </div>
+      <div class="card">
+        <div style="font-size:0.8rem; color:var(--muted);">Kode Referral Wilayah Anda</div>
+        <h2 id="kwRefCode" style="color:#b45309;">KORWIL-XXXX</h2>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="copyRefLink()">📋 Salin Link Rekrut Mitra</button>
+      </div>
+      <div class="card">
+        <div style="font-size:0.8rem; color:var(--muted);">Progress Target Kesejahteraan (UMR Rp6 Juta)</div>
+        <strong id="kwUmrText">Rp0 / Rp6.000.000</strong>
+        <div class="progress-track"><div class="progress-fill" id="kwUmrBar" style="width:0%;"></div></div>
+        <span style="font-size:0.75rem; color:var(--muted);">Target optimal: 60 Mitra Aktif / 2.400 order wilayah</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchKwTab('mitra', this)">👥 Mitra Binaan & Rekrutmen</button>
+      <button class="tab-btn" onclick="switchKwTab('orders', this)">📊 Laporan Transaksi Wilayah</button>
+      <button class="tab-btn" onclick="switchKwTab('sop', this)">📋 Tugas & SOP Korwil</button>
+      <button class="tab-btn" onclick="switchKwTab('wallet', this)">💰 Mutasi Komisi & Rekening</button>
+    </div>
+
+    <section id="kwtab-mitra">
+      <div class="card">
+        <h3 style="margin-bottom:10px;">👥 Daftar Mitra Binaan Terikat Kode Referral Anda</h3>
+        <div id="kwMitraList">Memuat...</div>
+      </div>
+    </section>
+
+    <section id="kwtab-orders" style="display:none;">
+      <div class="card">
+        <h3 style="margin-bottom:10px;">📊 Laporan Transaksi Real-Time Wilayah Anda</h3>
+        <div id="kwOrdersList"></div>
+      </div>
+    </section>
+
+    <section id="kwtab-sop" style="display:none;">
+      <div class="card">
+        <h3 style="margin-bottom:10px;">📋 Tugas, Alur Kerja & Strategi Korwil Mencapai ≥ Rp6.000.000/Bulan</h3>
+        <ul style="padding-left:20px; font-size:0.9rem; line-height:1.8;">
+          <li><strong>1. Rekrutmen Mitra Lapangan:</strong> Daftarkan terapis urut, tukang bangunan, teknisi listrik, ledeng, guru ngaji, bimbel, dan bersih rumah di kecamatan Anda menggunakan kode referral Anda.</li>
+          <li><strong>2. Kurasi & Validasi KTP/Sertifikat:</strong> Pastikan mitra binaan memiliki keahlian nyata agar rating wilayah tetap di atas 4.8 ⭐.</li>
+          <li><strong>3. Promosi Hiper-Lokal (Radius 3-5 km):</strong> Sebar brosur di perumahan, masjid, dan grup warga WhatsApp/Facebook agar warga memesan lewat aplikasi.</li>
+          <li><strong>4. Sumber Penghasilan Otomatis:</strong> Anda mendapat komisi otomatis setiap kali mitra binaan menyelesaikan order (Rp2.500/order reguler, Rp1.500/order Pro) + 30% setiap mitra upgrade ke Mitra Pro (Rp22.500/bln).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="kwtab-wallet" style="display:none;">
+      <div class="card">
+        <h3 style="margin-bottom:10px;">💰 Rekening Pencairan & Mutasi Komisi</h3>
+        <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+          <input type="text" id="kwBankInput" class="input" style="max-width:400px;" placeholder="Nama Bank - No Rekening - Atas Nama" />
+          <button class="btn btn-primary btn-sm" onclick="saveKwBank()">Simpan Rekening</button>
+        </div>
+        <div id="kwMutationsList"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    let kwInfo = {};
+    document.addEventListener("DOMContentLoaded", async () => {
+      await JK.initGlobal();
+      if (!JK.user || !["korwil", "owner"].includes(JK.user.role)) {
+        window.location.href = "/login.html";
+        return;
+      }
+      await loadKorwilAll();
+    });
+
+    async function loadKorwilAll() {
+      const [kwRes, walRes] = await Promise.all([
+        JK.api("/api/korwil/dashboard"),
+        JK.api("/api/wallet"),
+      ]);
+      kwInfo = kwRes.korwil;
+      document.getElementById("kwAreaLabel").textContent = `Wilayah: ${kwInfo.address_area}`;
+      document.getElementById("kwBalance").textContent = JK.rupiah(walRes.user.wallet_balance);
+      document.getElementById("kwRefCode").textContent = kwInfo.referral_code || "KORWIL-BKT01";
+      document.getElementById("kwBankInput").value = walRes.user.bank_info || "";
+
+      document.getElementById("kwUmrText").textContent = `${JK.rupiah(walRes.monthly_earned)} / ${JK.rupiah(walRes.umr_target)} (${walRes.umr_progress_pct}%)`;
+      document.getElementById("kwUmrBar").style.width = walRes.umr_progress_pct + "%";
+
+      document.getElementById("kwMitraList").innerHTML = (kwRes.mitra_list || [])
+        .map((m) => `
+          <div style="padding:10px; border:1px solid var(--border); border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; flex-wrap:wrap;">
+            <div>
+              <strong>${m.business_name || m.full_name}</strong> (${m.full_name})
+              <div style="font-size:0.8rem; color:var(--muted);">${m.address_area} • Order Selesai: ${m.total_orders_completed || 0} • ⭐ ${m.rating_avg || 5.0}</div>
+            </div>
+            <div>
+              <span class="badge ${m.membership_tier === "pro" ? "badge-amber" : "badge-teal"}">${(m.membership_tier || "reguler").toUpperCase()}</span>
+              <span class="badge ${m.verification_status === "verified" ? "badge-green" : "badge-red"}">${m.verification_status}</span>
+            </div>
+          </div>
+        `).join("") || "<p>Belum ada mitra binaan. Bagikan kode referral Anda!</p>";
+
+      document.getElementById("kwOrdersList").innerHTML = (kwRes.orders || [])
+        .map((o) => `
+          <div style="padding:10px; border-bottom:1px solid var(--border); font-size:0.85rem;">
+            <strong>${o.order_code}</strong> • ${o.service_title} (Mitra: ${o.mitra_name}) — <span class="badge badge-teal">${o.order_status}</span>
+          </div>
+        `).join("") || "<p>Belum ada transaksi di wilayah Anda.</p>";
+
+      document.getElementById("kwMutationsList").innerHTML = (walRes.mutations || [])
+        .map((mut) => `
+          <div style="padding:8px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.84rem;">
+            <span>${mut.description} <small style="color:var(--muted);">(${mut.created_at})</small></span>
+            <strong style="color:${mut.amount >= 0 ? "var(--success)" : "var(--danger)"};">${mut.amount >= 0 ? "+" : ""}${JK.rupiah(mut.amount)}</strong>
+          </div>
+        `).join("");
+    }
+
+    function copyRefLink() {
+      const text = `Gabung jadi Mitra JasaKita Pro di wilayah ${kwInfo.address_area}! Daftar di ${window.location.origin}/login.html dengan Kode Referral Korwil: ${kwInfo.referral_code}`;
+      navigator.clipboard.writeText(text);
+      alert("Teks & Kode Referral Korwil disalin:
+
+" + text);
+    }
+
+    async function saveKwBank() {
+      const res = await JK.api("/api/wallet", {
+        method: "POST",
+        body: JSON.stringify({ action: "update_bank", bank_info: document.getElementById("kwBankInput").value }),
+      });
+      alert(res.message);
+    }
+
+    async function withdrawKorwil() {
+      const amt = prompt("Masukkan nominal pencairan saldo (Minimal Rp50.000):", "100000");
+      if (!amt) return;
+      try {
+        const res = await JK.api("/api/wallet", {
+          method: "POST",
+          body: JSON.stringify({ action: "request_withdraw", amount: Number(amt) }),
+        });
+        alert(res.message);
+        loadKorwilAll();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    function switchKwTab(name, btn) {
+      ["mitra", "orders", "sop", "wallet"].forEach((t) => {
+        document.getElementById("kwtab-" + t).style.display = t === name ? "block" : "none";
+      });
+      if (btn) {
+        document.querySelectorAll(".tabs .tab-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner & Admin Control Center — JasaKita Pro</title>
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <div class="disclaimer-bar no-print" id="roleTopBanner">🛡️ OWNER & ADMIN CONTROL CENTER • Auto-Split Ledger & Manajemen 5 Peran</div>
+  <header class="navbar no-print">
+    <div class="nav-inner">
+      <a href="/index.html" class="brand-box">
+        <div class="brand-logo" data-brand-logo>🛡️</div>
+        <div>
+          <div class="brand-title"><span data-brand-name>JasaKita Pro</span> • <span id="activeRoleBadge">OWNER</span></div>
+          <span class="brand-slogan">Atur Rumus Split Saldo, 5 Peran, Laporan Keuangan & Ekspansi Nasional</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="/index.html" class="btn btn-outline btn-sm">Web Publik</a>
+        <button class="btn btn-danger btn-sm" onclick="JK.logout()">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- RINGKASAN DOMPET & TARGET UMR 6 JUTA -->
+    <div class="grid-3 no-print">
+      <div class="card">
+        <div style="font-size:0.8rem; color:var(--muted);">Saldo Dompet Akun Anda</div>
+        <h2 id="oaWalletBal" style="color:var(--primary);">Rp0</h2>
+        <button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="withdrawOa()">💸 Tarik Saldo</button>
+      </div>
+      <div class="card">
+        <div style="font-size:0.8rem; color:var(--muted);">Omzet Transaksi Selesai (Released)</div>
+        <h2 id="oaGrossRev" style="color:var(--success);">Rp0</h2>
+        <span style="font-size:0.75rem; color:var(--muted);" id="oaOrderCnt">0 transaksi selesai</span>
+      </div>
+      <div class="card">
+        <div style="font-size:0.8rem; color:var(--muted);">Progress Target Kesejahteraan (UMR 6jt)</div>
+        <strong id="oaUmrText">Rp0 / Rp6.000.000</strong>
+        <div class="progress-track"><div class="progress-fill" id="oaUmrBar" style="width:0%;"></div></div>
+      </div>
+    </div>
+
+    <div class="tabs no-print">
+      <button class="tab-btn active" onclick="switchOaTab('split', this)">⚖️ Rumus Split Saldo (Owner)</button>
+      <button class="tab-btn" onclick="switchOaTab('roles', this)">👥 Manajemen 5 Peran & Verifikasi</button>
+      <button class="tab-btn" onclick="switchOaTab('withdraw', this)">💸 Approval Withdraw & Mutasi</button>
+      <button class="tab-btn" onclick="switchOaTab('finance', this)">📊 Laporan Keuangan & Print Kop</button>
+      <button class="tab-btn" onclick="switchOaTab('sop', this)">📋 Tugas, Alur Kerja & Bisnis</button>
+    </div>
+
+    <!-- TAB 1: OWNER ATUR RUMUS PEMBAGIAN SPLIT SALDO TRANSAKSI -->
+    <section id="oatab-split">
+      <form onsubmit="saveSplitSettings(event)" class="card">
+        <h2 style="margin-bottom:6px;">⚖️ Pengaturan Rumus Pembagian Split Saldo Transaksi (Khusus Owner)</h2>
+        <p style="font-size:0.84rem; color:var(--muted); margin-bottom:14px;">
+          Atur nominal biaya proteksi User, potongan Token Mitra Reguler, harga Langganan Mitra Pro, serta pembagian otomatis ke <strong>Korwil, Admin, dan Owner</strong> setiap kali transaksi selesai. Mitra tetap menerima <strong>100% tarif jasanya</strong>.
+        </p>
+
+        <h4 style="margin-bottom:8px; color:var(--primary);">1. Sumber Pool Dana Masuk</h4>
+        <div class="grid-3">
+          <div class="form-group">
+            <label>Biaya Proteksi & Garansi User (Rp / Order)</label>
+            <input type="number" id="set_split_user_platform_fee" class="input" required />
+          </div>
+          <div class="form-group">
+            <label>Potongan Token Mitra Reguler (Rp / Order)</label>
+            <input type="number" id="set_split_mitra_token_fee" class="input" required />
+          </div>
+          <div class="form-group">
+            <label>Harga Langganan Mitra Pro (Rp / Bulan)</label>
+            <input type="number" id="set_split_mitra_pro_price" class="input" required />
+          </div>
+        </div>
+
+        <h4 style="margin:12px 0 8px; color:var(--primary);">2. Split Per Order Mitra Reguler (Dari Pool Fee User + Token Mitra)</h4>
+        <div class="grid-3">
+          <div class="form-group"><label>Porsi Korwil Pembina (Rp)</label><input type="number" id="set_split_reguler_korwil_rp" class="input" required /></div>
+          <div class="form-group"><label>Porsi Admin Operasional (Rp)</label><input type="number" id="set_split_reguler_admin_rp" class="input" required /></div>
+          <div class="form-group"><label>Porsi Owner Ekosistem (Rp)</label><input type="number" id="set_split_reguler_owner_rp" class="input" required /></div>
+        </div>
+
+        <h4 style="margin:12px 0 8px; color:var(--primary);">3. Split Per Order Mitra Pro (Dari Pool Fee User Saja, Token Mitra Rp0)</h4>
+        <div class="grid-3">
+          <div class="form-group"><label>Porsi Korwil Pembina (Rp)</label><input type="number" id="set_split_pro_order_korwil_rp" class="input" required /></div>
+          <div class="form-group"><label>Porsi Admin Operasional (Rp)</label><input type="number" id="set_split_pro_order_admin_rp" class="input" required /></div>
+          <div class="form-group"><label>Porsi Owner Ekosistem (Rp)</label><input type="number" id="set_split_pro_order_owner_rp" class="input" required /></div>
+        </div>
+
+        <h4 style="margin:12px 0 8px; color:var(--primary);">4. Persentase Split Langganan Mitra Pro (%) & Target Kesejahteraan</h4>
+        <div class="grid-4">
+          <div class="form-group"><label>Komisi Korwil (%)</label><input type="number" id="set_split_sub_korwil_pct" class="input" required /></div>
+          <div class="form-group"><label>Insentif Admin (%)</label><input type="number" id="set_split_sub_admin_pct" class="input" required /></div>
+          <div class="form-group"><label>Profit Owner (%)</label><input type="number" id="set_split_sub_owner_pct" class="input" required /></div>
+          <div class="form-group"><label>Patokan UMR Bulanan (Rp)</label><input type="number" id="set_umr_target_monthly" class="input" required /></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btnSaveSplit">💾 Simpan Rumus Pembagian Saldo</button>
+      </form>
+    </section>
+
+    <!-- TAB 2: MANAJEMEN 5 PERAN & VERIFIKASI MITRA -->
+    <section id="oatab-roles" style="display:none;">
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-bottom:10px;">➕ Tambah Akun Admin atau Korwil Baru (Owner)</h3>
+          <form onsubmit="createStaffAccount(event)">
+            <div class="form-group">
+              <label>Peran Baru</label>
+              <select id="stRole" class="input">
+                <option value="korwil">Korwil (Koordinator Wilayah Ekspansi)</option>
+                <option value="admin">Admin (Operasional, Verifikator & CS)</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Nama Lengkap</label><input type="text" id="stName" class="input" required /></div>
+            <div class="form-group"><label>Email Login</label><input type="email" id="stEmail" class="input" required /></div>
+            <div class="form-group"><label>Nomor WhatsApp</label><input type="text" id="stPhone" class="input" placeholder="0812..." required /></div>
+            <div class="form-group"><label>Wilayah Tugas (Kecamatan / Kota)</label><input type="text" id="stArea" class="input" placeholder="Contoh: Karawaci, Tangerang" required /></div>
+            <div class="form-group"><label>Password Awal</label><input type="text" id="stPass" class="input" value="demo1234" required /></div>
+            <button type="submit" class="btn btn-primary">Buat Akun Peran</button>
+          </form>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:10px;">👥 Daftar Seluruh Akun 5 Peran & Verifikasi Mitra</h3>
+          <div id="oaUsersList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: APPROVAL WITHDRAW & KELUHAN -->
+    <section id="oatab-withdraw" style="display:none;">
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-bottom:10px;">💸 Permintaan Pencairan Saldo (Mitra & Korwil)</h3>
+          <div id="oaWithdrawList"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:10px;">🚨 Tiket Keluhan Pelanggan</h3>
+          <div id="oaComplaintsList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: LAPORAN KEUANGAN & PRINT KOP BISNIS -->
+    <section id="oatab-finance" style="display:none;">
+      <div class="card print-area">
+        <div style="border-bottom:3px double #0f172a; padding-bottom:12px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h2 id="kopTitle">PT JASAKITA NUSANTARA DIGITAL</h2>
+            <div id="kopHeader" style="font-size:0.82rem; font-weight:600;"></div>
+            <div id="kopSub" style="font-size:0.78rem; color:var(--muted);"></div>
+          </div>
+          <button class="btn btn-primary no-print" onclick="window.print()">🖨️ Print Laporan Kop Bisnis</button>
+        </div>
+        <h3 style="margin-bottom:10px;">Laporan Rekapitulasi Transaksi & Distribusi Bagi Hasil</h3>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.83rem;">
+            <thead>
+              <tr style="background:#f1f5f9; text-align:left;">
+                <th style="padding:8px; border-bottom:1px solid var(--border);">Invoice</th>
+                <th style="padding:8px; border-bottom:1px solid var(--border);">Layanan</th>
+                <th style="padding:8px; border-bottom:1px solid var(--border);">Pelanggan → Mitra</th>
+                <th style="padding:8px; border-bottom:1px solid var(--border);">Total Bayar</th>
+                <th style="padding:8px; border-bottom:1px solid var(--border);">Rincian Split Saldo</th>
+              </tr>
+            </thead>
+            <tbody id="oaFinanceBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: TUGAS, ALUR KERJA & PENGATURAN BISNIS -->
+    <section id="oatab-sop" style="display:none;">
+      <div class="card">
+        <h3 style="margin-bottom:10px;">📋 Matriks Tugas, Arus Kas & Target Kesejahteraan (UMR Rp6.000.000/Bulan)</h3>
+        <ul style="padding-left:20px; font-size:0.88rem; line-height:1.8; margin-bottom:16px;">
+          <li><strong>Owner (Pemilik):</strong> Mengatur rumus pembagian split saldo, membuka wilayah Korwil ekspansi nasional, menjaga keamanan teknologi tanpa beban gaji tetap. Target: Rp6,2jt/kota × jumlah kota.</li>
+          <li><strong>Admin Operasional & CS:</strong> Memverifikasi KTP/sertifikat mitra &lt; 2 jam, memediasi komplain & klaim garansi, serta memproses approval withdraw. Penghasilan otomatis dari fee transaksi & langganan Pro.</li>
+          <li><strong>Korwil (City Partner):</strong> Merekrut & membina 60 mitra di kecamatannya, beriklan lokal radius 3-5 km, mendapat komisi berkelanjutan dari seluruh transaksi mitra binaannya.</li>
+          <li><strong>Mitra Independen:</strong> Menentukan tarif jasa sendiri (100% utuh), menjaga kualitas & rating ≥ 4.8 ⭐, mengerjakan 3 order/hari (75 order/bln) untuk meraih ≥ Rp6,37jt bersih/bulan.</li>
+          <li><strong>User (Pelanggan):</strong> Memesan jasa harian/langganan dengan harga jujur, terlindungi Escrow Midtrans & garansi pengerjaan ulang 7 hari.</li>
+        </ul>
+        <button class="btn btn-danger btn-sm" onclick="cleanDummy()">🧹 Bersihkan Data Dummy Pra-Produksi</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      await JK.initGlobal();
+      if (!JK.user || !["owner", "admin"].includes(JK.user.role)) {
+        window.location.href = "/login.html";
+        return;
+      }
+      document.getElementById("activeRoleBadge").textContent = JK.user.role.toUpperCase();
+      if (JK.user.role !== "owner") {
+        document.getElementById("btnSaveSplit").disabled = true;
+        document.getElementById("btnSaveSplit").textContent = "🔒 Hanya Owner yang Dapat Mengubah Rumus Split";
+      }
+      await loadOaAll();
+    });
+
+    async function loadOaAll() {
+      const [oaRes, walRes] = await Promise.all([
+        JK.api("/api/owner/manage"),
+        JK.api("/api/wallet"),
+      ]);
+
+      document.getElementById("oaWalletBal").textContent = JK.rupiah(walRes.user.wallet_balance);
+      document.getElementById("oaGrossRev").textContent = JK.rupiah(oaRes.finance.gross_revenue);
+      document.getElementById("oaOrderCnt").textContent = `${oaRes.finance.total_released_orders} transaksi selesai`;
+      document.getElementById("oaUmrText").textContent = `${JK.rupiah(walRes.monthly_earned)} / ${JK.rupiah(walRes.umr_target)} (${walRes.umr_progress_pct}%)`;
+      document.getElementById("oaUmrBar").style.width = walRes.umr_progress_pct + "%";
+
+      const s = oaRes.settings || {};
+      document.getElementById("kopTitle").textContent = s.brand_name || "JasaKita Pro";
+      document.getElementById("kopHeader").textContent = s.kop_header || "";
+      document.getElementById("kopSub").textContent = s.kop_sub || "";
+
+      Object.keys(s).forEach((k) => {
+        const el = document.getElementById("set_" + k);
+        if (el) el.value = s[k];
+      });
+
+      document.getElementById("oaUsersList").innerHTML = (oaRes.users || []).map((u) => `
+        <div style="padding:10px; border:1px solid var(--border); border-radius:10px; margin-bottom:8px; font-size:0.83rem;">
+          <div style="display:flex; justify-content:space-between;">
+            <strong>${u.full_name} <span class="badge badge-teal">${u.role.toUpperCase()}</span></strong>
+            <span>Saldo: <strong>${JK.rupiah(u.wallet_balance)}</strong></span>
+          </div>
+          <div style="color:var(--muted);">${u.phone_masked} • ${u.address_area} ${u.referral_code ? `• Ref: <b>${u.referral_code}</b>` : ""}</div>
+          ${u.role === "mitra" ? `<div style="margin-top:6px;"><button class="btn btn-primary btn-sm" onclick="verMitra(${u.id})">✓ Verifikasi Mitra (${u.verification_status})</button></div>` : ""}
+        </div>
+      `).join("");
+
+      document.getElementById("oaWithdrawList").innerHTML = (oaRes.withdrawals || []).map((w) => `
+        <div style="padding:10px; border:1px solid var(--border); border-radius:10px; margin-bottom:8px; font-size:0.83rem;">
+          <strong>${w.withdraw_code}</strong> • ${w.full_name} (${w.role}) — <strong>${JK.rupiah(w.amount)}</strong>
+          <div>Tujuan: ${w.bank_destination} • Status: <span class="badge badge-amber">${w.status}</span></div>
+          ${w.status === "pending" ? `<button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="approveWd(${w.id})">✓ Setujui Transfer</button>` : ""}
+        </div>
+      `).join("") || "<p>Belum ada pengajuan withdraw.</p>";
+
+      document.getElementById("oaComplaintsList").innerHTML = (oaRes.complaints || []).map((c) => `
+        <div style="padding:10px; border:1px solid var(--border); border-radius:10px; margin-bottom:8px; font-size:0.83rem;">
+          <strong>[${c.ticket_code}] ${c.subject}</strong> (${c.full_name})
+          <p>${c.description}</p>
+          <button class="btn btn-primary btn-sm" onclick="replyComp(${c.id})">Balas</button>
+        </div>
+      `).join("") || "<p>Tidak ada keluhan terbuka.</p>";
+
+      document.getElementById("oaFinanceBody").innerHTML = (oaRes.orders || []).map((o) => `
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">${o.order_code}</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">${o.service_title}</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">${o.customer_name} → ${o.mitra_name}</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><strong>${JK.rupiah(o.total_amount)}</strong></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border); font-size:0.76rem;">${o.split_detail_json || o.payment_status}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function saveSplitSettings(e) {
+      e.preventDefault();
+      const keys = [
+        "split_user_platform_fee", "split_mitra_token_fee", "split_mitra_pro_price",
+        "split_reguler_korwil_rp", "split_reguler_admin_rp", "split_reguler_owner_rp",
+        "split_pro_order_korwil_rp", "split_pro_order_admin_rp", "split_pro_order_owner_rp",
+        "split_sub_korwil_pct", "split_sub_admin_pct", "split_sub_owner_pct", "umr_target_monthly"
+      ];
+      const settings = {};
+      keys.forEach((k) => {
+        const el = document.getElementById("set_" + k);
+        if (el) settings[k] = el.value;
+      });
+      const res = await JK.api("/api/owner/manage", {
+        method: "POST",
+        body: JSON.stringify({ action: "save_settings", settings }),
+      });
+      alert(res.message);
+      loadOaAll();
+    }
+
+    async function createStaffAccount(e) {
+      e.preventDefault();
+      const res = await JK.api("/api/owner/manage", {
+        method: "POST",
+        body: JSON.stringify({
+          action: "create_staff",
+          role: document.getElementById("stRole").value,
+          full_name: document.getElementById("stName").value,
+          email: document.getElementById("stEmail").value,
+          phone: document.getElementById("stPhone").value,
+          address_area: document.getElementById("stArea").value,
+          password: document.getElementById("stPass").value,
+        }),
+      });
+      alert(res.message);
+      e.target.reset();
+      loadOaAll();
+    }
+
+    async function verMitra(userId) {
+      await JK.api("/api/owner/manage", { method: "POST", body: JSON.stringify({ action: "verify_mitra", user_id: userId, status: "verified" }) });
+      loadOaAll();
+    }
+
+    async function approveWd(id) {
+      await JK.api("/api/owner/manage", { method: "POST", body: JSON.stringify({ action: "process_withdraw", id, status: "approved" }) });
+      loadOaAll();
+    }
+
+    async function replyComp(id) {
+      const reply = prompt("Balasan penyelesaian:");
+      if (!reply) return;
+      await JK.api("/api/owner/manage", { method: "POST", body: JSON.stringify({ action: "reply_complaint", id, reply }) });
+      loadOaAll();
+    }
+
+    async function withdrawOa() {
+      const amt = prompt("Nominal tarik saldo (Min Rp50.000):", "200000");
+      if (!amt) return;
+      try {
+        const res = await JK.api("/api/wallet", { method: "POST", body: JSON.stringify({ action: "request_withdraw", amount: Number(amt) }) });
+        alert(res.message);
+        loadOaAll();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    async function cleanDummy() {
+      if (!confirm("Hapus seluruh data dummy?")) return;
+      const res = await JK.api("/api/owner/manage", { method: "POST", body: JSON.stringify({ action: "clean_dummy" }) });
+      alert(res.message);
+      loadOaAll();
+    }
+
+    function switchOaTab(name, btn) {
+      ["split", "roles", "withdraw", "finance", "sop"].forEach((t) => {
+        document.getElementById("oatab-" + t).style.display = t === name ? "block" : "none";
+      });
+      if (btn) {
+        document.querySelectorAll(".tabs .tab-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      }
+    }
+  </script>
+</body>
+</html>

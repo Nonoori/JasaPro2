@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JasaKita Pro — Jasa Harian & Langganan Terpercaya</title>
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <div class="disclaimer-bar" data-disclaimer>🔒 Keamanan Terjamin: Nomor WA & Alamat Dienkripsi • Pembayaran Aman Escrow Midtrans</div>
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="/index.html" class="brand-box">
+        <div class="brand-logo" data-brand-logo>🛡️</div>
+        <div>
+          <div class="brand-title" data-brand-name>JasaKita Pro</div>
+          <span class="brand-slogan" data-brand-slogan>Solusi Jasa Harian & Langganan Terpercaya</span>
+        </div>
+      </a>
+      <div class="nav-links" id="navRight">
+        <a href="/login.html" class="btn btn-primary btn-sm">🔑 Login / Daftar (5 Peran)</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card" style="background:linear-gradient(135deg,#0f766e,#0d9488); color:#fff; border:none;">
+      <span class="badge badge-amber" style="margin-bottom:8px;">✓ Harga Jujur Langsung Mitra • Dana Aman Escrow • Garansi 7 Hari</span>
+      <h1 style="font-size:1.55rem; margin-bottom:8px;">Cari Jasa Harian & Paket Langganan Terpercaya di Sekitarmu</h1>
+      <p style="font-size:0.9rem; opacity:0.92; margin-bottom:12px;">
+        Harian: Urut, Tukang, Kebon, Listrik, Ledeng, Gojek • Langganan: Ngaji, Bimbel, Bersih Rumah, Laundry
+      </p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <input type="text" id="qSearch" class="input" style="max-width:340px;" placeholder="Cari urut, listrik, ngaji, bersih rumah..." oninput="loadCatalog()" />
+        <button class="btn btn-accent" onclick="setType('')">Semua</button>
+        <button class="btn btn-outline" onclick="setType('harian')">⚡ Harian</button>
+        <button class="btn btn-outline" onclick="setType('langganan')">📅 Langganan</button>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('katalog', this)">🔍 Jelajah Jasa</button>
+      <button class="tab-btn" onclick="switchTab('riwayat', this)">📋 Riwayat & Escrow</button>
+      <button class="tab-btn" onclick="switchTab('chat', this)">💬 Chat Aman Privat</button>
+      <button class="tab-btn" onclick="switchTab('profil', this)">👤 Profil & Keluhan</button>
+    </div>
+
+    <section id="tab-katalog">
+      <div id="catChips" class="tabs"></div>
+      <div id="srvGrid" class="grid-3"></div>
+    </section>
+
+    <section id="tab-riwayat" style="display:none;">
+      <div class="card">
+        <h3 style="margin-bottom:10px;">📋 Riwayat Pesanan & Konfirmasi Penyelesaian Escrow</h3>
+        <div id="ordersBox"></div>
+      </div>
+    </section>
+
+    <section id="tab-chat" style="display:none;">
+      <div class="card">
+        <strong id="chatHeader">💬 Chat Aman Privat (Nomor WA Otomatis Disamarkan)</strong>
+        <div class="chat-box" id="chatBox" style="margin:10px 0;"></div>
+        <form onsubmit="sendMsg(event)" style="display:flex; gap:8px;">
+          <input type="text" id="chatTxt" class="input" placeholder="Tulis pesan atau negosiasi harga..." required />
+          <button type="submit" class="btn btn-primary">Kirim</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="tab-profil" style="display:none;">
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-bottom:10px;">👤 Profil Pribadi & Keamanan Data</h3>
+          <form onsubmit="saveProfile(event)">
+            <div class="form-group"><label>Nama Lengkap</label><input type="text" id="pName" class="input" required /></div>
+            <div class="form-group"><label>No. WhatsApp (Terenkripsi)</label><input type="text" id="pPhone" class="input" required /></div>
+            <div class="form-group"><label>Area Kecamatan / Kota</label><input type="text" id="pArea" class="input" required /></div>
+            <div class="form-group"><label>Alamat Lengkap</label><textarea id="pAddr" rows="2" class="input"></textarea></div>
+            <button type="submit" class="btn btn-primary">💾 Simpan Profil</button>
+          </form>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:10px;">🚨 Kirim Keluhan / Masalah</h3>
+          <form onsubmit="sendComplaint(event)">
+            <div class="form-group"><label>Subjek</label><input type="text" id="cSubj" class="input" required /></div>
+            <div class="form-group"><label>Kronologi</label><textarea id="cDesc" rows="3" class="input" required></textarea></div>
+            <button type="submit" class="btn btn-primary">Kirim Tiket</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL BOOKING -->
+  <div class="modal-backdrop" id="bookModal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <h3 id="bmTitle">Detail Layanan</h3>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('bookModal').classList.remove('open')">✕</button>
+      </div>
+      <div style="background:#f1f5f9; padding:10px; border-radius:10px; font-size:0.84rem; margin-bottom:10px;">
+        <strong id="bmMitra"></strong> • ⭐ <span id="bmRating"></span> • 📍 <span id="bmDist"></span> km
+        <div id="bmCerts" style="margin-top:4px;"></div>
+      </div>
+      <p id="bmDesc" style="font-size:0.88rem; margin-bottom:10px;"></p>
+      <form onsubmit="submitOrder(event)">
+        <div id="bmAddons" style="margin-bottom:10px;"></div>
+        <div class="grid-2">
+          <div class="form-group"><label>Tanggal</label><input type="date" id="bmDate" class="input" required /></div>
+          <div class="form-group"><label>Jam</label><input type="time" id="bmTime" class="input" value="09:00" required /></div>
+        </div>
+        <div class="form-group"><label>Catatan Timing</label><input type="text" id="bmNote" class="input" placeholder="Datang tepat waktu" /></div>
+        <div style="padding:10px; background:#ecfdf5; border-radius:10px; margin-bottom:10px; display:flex; justify-content:space-between;">
+          <span>Total (+ Biaya Proteksi Escrow Rp4.000):</span>
+          <strong id="bmTotal" style="color:var(--primary);">Rp0</strong>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-outline" onclick="openChatMitra()">💬 Chat Mitra</button>
+          <button type="submit" class="btn btn-primary" style="flex:1;">✅ Pesan & Bayar Escrow</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div><h4 style="color:#fff;" data-brand-name>JasaKita Pro</h4><p style="font-size:0.83rem;" data-brand-slogan></p></div>
+      <div><h4 style="color:#fff;">Akses 5 Peran</h4><a href="/login.html" class="btn btn-accent btn-sm">Login User / Mitra / Korwil / Admin / Owner</a></div>
+      <div><h4 style="color:#fff;">Pusat Bantuan</h4><a data-admin-wa target="_blank" class="btn btn-primary btn-sm">WA Pusat: 0831-2444-3888</a><p style="font-size:0.76rem; margin-top:8px;" data-copyright></p></div>
+    </div>
+  </footer>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    let srvType = "", srvCat = "", services = [], selSrv = null, chatPartner = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      await JK.initGlobal();
+      if (JK.user) {
+        const dashUrl = JK.roleRedirect(JK.user.role);
+        document.getElementById("navRight").innerHTML = `
+          <span class="badge badge-teal">${JK.user.full_name} (${JK.user.role.toUpperCase()})</span>
+          ${JK.user.role !== "user" ? `<a href="${dashUrl}" class="btn btn-accent btn-sm">Dashboard ${JK.user.role.toUpperCase()}</a>` : ""}
+          <button class="btn btn-outline btn-sm" onclick="JK.logout()">Keluar</button>
+        `;
+      }
+      document.getElementById("bmDate").value = new Date().toISOString().slice(0, 10);
+      await loadCatalog();
+    });
+
+    function setType(t) { srvType = t; loadCatalog(); }
+    function setCat(s) { srvCat = srvCat === s ? "" : s; loadCatalog(); }
+
+    async function loadCatalog() {
+      const q = document.getElementById("qSearch").value;
+      const data = await JK.api(`/api/public/catalog?type=${srvType}&category=${srvCat}&q=${encodeURIComponent(q)}`);
+      services = data.services || [];
+      document.getElementById("catChips").innerHTML = (data.categories || []).map((c) => `
+        <button class="tab-btn ${srvCat === c.slug ? "active" : ""}" onclick="setCat('${c.slug}')">${c.icon} ${c.name}</button>
+      `).join("");
+
+      document.getElementById("srvGrid").innerHTML = services.map((s) => `
+        <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="badge ${s.service_type === "harian" ? "badge-blue" : "badge-amber"}">${s.service_type.toUpperCase()}</span>
+              ${s.membership_tier === "pro" ? '<span class="badge badge-green">⭐ MITRA PRO</span>' : `<span class="badge badge-teal">📍 ${s.distance_km} km</span>`}
+            </div>
+            <h3 style="font-size:1.02rem; margin-bottom:4px;">${s.title}</h3>
+            <div style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">${s.business_name || s.mitra_name} • 📍 ${s.distance_km} km</div>
+            <p style="font-size:0.84rem; color:#475569; margin-bottom:10px;">${s.description}</p>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:8px; margin-bottom:8px;">
+              <strong style="color:var(--primary);">${JK.rupiah(s.price)} <small style="color:var(--muted); font-weight:400;">${s.price_unit}</small></strong>
+              <span>⭐ ${s.rating_avg || 5.0}</span>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="openBook(${s.id})">Lihat Detail & Pesan</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function openBook(id) {
+      selSrv = services.find((x) => x.id === id);
+      if (!selSrv) return;
+      document.getElementById("bmTitle").textContent = selSrv.title;
+      document.getElementById("bmMitra").textContent = selSrv.business_name || selSrv.mitra_name;
+      document.getElementById("bmRating").textContent = selSrv.rating_avg || 5.0;
+      document.getElementById("bmDist").textContent = selSrv.distance_km;
+      document.getElementById("bmDesc").textContent = selSrv.description;
+      document.getElementById("bmCerts").innerHTML = (selSrv.certifications || []).map((c) => `<span class="badge badge-green">🏅 ${c.title}</span>`).join(" ");
+      document.getElementById("bmAddons").innerHTML = (selSrv.addons || []).map((a) => `
+        <label style="display:flex; gap:8px; padding:6px; border:1px solid var(--border); border-radius:8px; margin-bottom:4px; font-size:0.83rem;">
+          <input type="checkbox" class="b-add" value="${a.id}" data-price="${a.addon_price}" onchange="calcBm()" />
+          <span>${a.addon_name} (+${JK.rupiah(a.addon_price)})</span>
+        </label>
+      `).join("");
+      calcBm();
+      document.getElementById("bookModal").classList.add("open");
+    }
+
+    function calcBm() {
+      let tot = selSrv.price + 4000;
+      document.querySelectorAll(".b-add:checked").forEach((el) => (tot += Number(el.dataset.price || 0)));
+      document.getElementById("bmTotal").textContent = JK.rupiah(tot);
+    }
+
+    async function submitOrder(e) {
+      e.preventDefault();
+      if (!JK.user) return (window.location.href = "/login.html");
+      const addon_ids = [...document.querySelectorAll(".b-add:checked")].map((el) => Number(el.value));
+      try {
+        const res = await JK.api("/api/orders", {
+          method: "POST",
+          body: JSON.stringify({
+            service_id: selSrv.id,
+            addon_ids,
+            schedule_date: document.getElementById("bmDate").value,
+            schedule_time: document.getElementById("bmTime").value,
+            timing_notes: document.getElementById("bmNote").value,
+          }),
+        });
+        alert(`${res.message}
+Invoice: ${res.order_code}`);
+        document.getElementById("bookModal").classList.remove("open");
+        switchTab("riwayat");
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function loadOrders() {
+      if (!JK.user) return (document.getElementById("ordersBox").innerHTML = `<a href="/login.html" class="btn btn-primary btn-sm">Login untuk Melihat Pesanan</a>`);
+      const data = await JK.api("/api/orders");
+      document.getElementById("ordersBox").innerHTML = (data.orders || []).map((o) => `
+        <div style="border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap;">
+            <strong>${o.order_code} • ${o.service_title}</strong>
+            <span class="badge badge-teal">${o.order_status.toUpperCase()} (${o.payment_status})</span>
+          </div>
+          <div style="font-size:0.82rem; color:var(--muted); margin:4px 0;">Mitra: ${o.mitra_name} • Jadwal: ${o.schedule_date} ${o.schedule_time} • Total: <strong>${JK.rupiah(o.total_amount)}</strong></div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+            ${o.payment_status === "unpaid" ? `<button class="btn btn-accent btn-sm" onclick="payEscrow(${o.id})">💳 Bayar ke Escrow Midtrans</button>` : ""}
+            ${o.payment_status === "escrow_paid" && o.order_status !== "selesai" ? `<button class="btn btn-primary btn-sm" onclick="finishOrder(${o.id})">✅ Konfirmasi Selesai & Cairkan ke Mitra</button>` : ""}
+            <button class="btn btn-outline btn-sm" onclick="openChatId(${o.mitra_id})">💬 Chat Mitra</button>
+          </div>
+        </div>
+      `).join("") || "<p>Belum ada pesanan.</p>";
+    }
+
+    async function payEscrow(id) {
+      const res = await JK.api("/api/orders", { method: "PUT", body: JSON.stringify({ order_id: id, action: "pay_confirm" }) });
+      alert(res.message);
+      loadOrders();
+    }
+
+    async function finishOrder(id) {
+      const res = await JK.api("/api/orders", { method: "PUT", body: JSON.stringify({ order_id: id, action: "update_status", new_status: "selesai" }) });
+      alert(res.message);
+      loadOrders();
+    }
+
+    function openChatMitra() {
+      if (!JK.user) return (window.location.href = "/login.html");
+      const mid = selSrv.mitra_id;
+      document.getElementById("bookModal").classList.remove("open");
+      openChatId(mid);
+    }
+
+    async function openChatId(pid) {
+      chatPartner = pid;
+      switchTab("chat");
+      const data = await JK.api(`/api/chat/messages?partner_id=${pid}`);
+      document.getElementById("chatHeader").textContent = `Chat dengan ${data.partner?.business_name || data.partner?.full_name} (Jarak: ${data.distance_km} km)`;
+      document.getElementById("chatBox").innerHTML = (data.messages || []).map((m) => `
+        <div class="msg-bubble ${m.sender_id === JK.user.id ? "msg-mine" : "msg-other"}">${m.text}</div>
+      `).join("");
+    }
+
+    async function sendMsg(e) {
+      e.preventDefault();
+      if (!chatPartner) return alert("Pilih mitra dari katalog terlebih dahulu.");
+      const inp = document.getElementById("chatTxt");
+      await JK.api("/api/chat/messages", { method: "POST", body: JSON.stringify({ receiver_id: chatPartner, text: inp.value }) });
+      inp.value = "";
+      openChatId(chatPartner);
+    }
+
+    async function saveProfile(e) {
+      e.preventDefault();
+      const res = await JK.api("/api/user/profile", {
+        method: "PUT",
+        body: JSON.stringify({
+          full_name: document.getElementById("pName").value,
+          phone: document.getElementById("pPhone").value,
+          address_area: document.getElementById("pArea").value,
+          address: document.getElementById("pAddr").value,
+        }),
+      });
+      alert(res.message);
+    }
+
+    async function sendComplaint(e) {
+      e.preventDefault();
+      const res = await JK.api("/api/user/profile", {
+        method: "POST",
+        body: JSON.stringify({ subject: document.getElementById("cSubj").value, description: document.getElementById("cDesc").value }),
+      });
+      alert(res.message);
+      e.target.reset();
+    }
+
+    async function switchTab(name, btn) {
+      ["katalog", "riwayat", "chat", "profil"].forEach((t) => {
+        document.getElementById("tab-" + t).style.display = t === name ? "block" : "none";
+      });
+      if (btn) {
+        document.querySelectorAll(".tabs .tab-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      }
+      if (name === "riwayat") loadOrders();
+      if (name === "profil" && JK.user) {
+        const d = await JK.api("/api/user/profile");
+        document.getElementById("pName").value = d.profile.full_name || "";
+        document.getElementById("pPhone").value = d.profile.phone || "";
+        document.getElementById("pArea").value = d.profile.address_area || "";
+        document.getElementById("pAddr").value = d.profile.address || "";
+      }
+    }
+  </script>
+</body>
+</html>

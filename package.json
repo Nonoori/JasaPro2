@@ -1,0 +1,12 @@
+{
+  "name": "jasakita-pro-marketplace",
+  "version": "2.0.0",
+  "description": "Marketplace Jasa Harian & Langganan 5 Peran (User, Mitra, Korwil, Admin, Owner) dengan Auto-Split Ledger, Escrow, Referral Korwil, Midtrans & WA",
+  "scripts": {
+    "dev": "npx wrangler pages dev public --d1=DB --local",
+    "db:init": "npx wrangler d1 execute jasakita_db --local --file=./db/schema.sql",
+    "db:seed": "npx wrangler d1 execute jasakita_db --local --file=./db/seed_dummy.sql",
+    "db:clean": "npx wrangler d1 execute jasakita_db --local --file=./db/clean_dummy.sql",
+    "deploy": "npx wrangler pages deploy public"
+  }
+}
