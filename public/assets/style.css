@@ -1,4 +1,4 @@
-/* JASAKITA PRO V2 - DESIGN SYSTEM 5 PERAN */
+/* JASAKITA PRO V2 - DESIGN SYSTEM (STICKY TABS UNTUK SEMUA ROLE) */
 :root {
   --primary: #0d9488;
   --primary-dark: #0f766e;
@@ -17,7 +17,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
 body { background: var(--bg); color: var(--text); line-height: 1.55; padding-bottom: 84px; }
 .disclaimer-bar { background: #0f172a; color: #f8fafc; font-size: 0.78rem; padding: 8px 16px; text-align: center; border-bottom: 2px solid var(--accent); }
-.navbar { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 12px 18px; }
+.navbar { background: rgba(255,255,255,0.95); border-bottom: 1px solid var(--border); padding: 12px 18px; }
 .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .brand-box { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
 .brand-logo { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; display: grid; place-items: center; font-size: 1.3rem; }
@@ -45,9 +45,36 @@ body { background: var(--bg); color: var(--text); line-height: 1.55; padding-bot
 .form-group { margin-bottom: 12px; }
 .form-group label { display: block; font-size: 0.81rem; font-weight: 600; margin-bottom: 4px; color: #334155; }
 .input, select, textarea { width: 100%; padding: 10px 12px; border-radius: 11px; border: 1px solid var(--border); background: #fff; font-size: 0.89rem; color: var(--text); }
-.tabs { position: sticky; top: 0; z-index: 50; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 16px; }
+
+/* STICKY TABS UNTUK SEMUA ROLE */
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  background: rgba(248, 250, 252, 0.96);
+  backdrop-filter: blur(8px);
+  padding: 10px 4px;
+  margin: 0 -4px 16px;
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+/* Agar chip kategori di dalam katalog tidak ikut menumpuk di top: 0 */
+#catChips.tabs {
+  position: static;
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: none;
+  padding: 4px 0 8px;
+  margin: 0 0 12px;
+}
+
 .tab-btn { padding: 9px 14px; border-radius: 11px; border: 1px solid var(--border); background: var(--surface); font-weight: 600; font-size: 0.84rem; white-space: nowrap; cursor: pointer; }
-.tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25); }
 .progress-track { width: 100%; height: 12px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 8px 0; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #10b981); transition: width 0.3s; }
 .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.65); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 100; }
@@ -59,4 +86,4 @@ body { background: var(--bg); color: var(--text); line-height: 1.55; padding-bot
 .msg-other { align-self: flex-start; background: #fff; border: 1px solid var(--border); }
 .site-footer { background: #0f172a; color: #cbd5e1; padding: 30px 16px 90px; margin-top: 36px; }
 .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-@media print { .no-print, .navbar, .disclaimer-bar, .site-footer { display: none !important; } }
+@media print { .no-print, .navbar, .disclaimer-bar, .site-footer, .tabs { display: none !important; } }
