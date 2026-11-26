@@ -63,10 +63,48 @@ export async function onRequestPut({ request, data, env }) {
 }
 
 export async function onRequestPost({ request, data, env }) {
-  const { subject, description } = await request.json();
+  const { subject, description, category_id = null, skill_required = "" } = await request.json();
+  if (!subject || !description) {
+    return jsonResponse({ error: "Judul keluhan/permintaan dan deskripsi wajib diisi." }, 400);
+  }
+
+  const user = await env.DB.prepare("SELECT address_area FROM users WHERE id = ?").bind(data.user.id).first();
+  const cat = category_id
+    ? await env.DB.prepare("SELECT name FROM service_categories WHERE id = ?").bind(category_id).first()
+    : null;
+
+  const finalSkill = skill_required || cat?.name || "";
   const ticketCode = `TKT-${Date.now().toString().slice(-6)}`;
-  await env.DB.prepare("INSERT INTO complaints (ticket_code, user_id, subject, description) VALUES (?, ?, ?, ?)")
-    .bind(ticketCode, data.user.id, subject, description)
+
+  await env.DB.prepare(
+    `INSERT INTO complaints (ticket_code, user_id, category_id, skill_required, subject, description, address_area, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'open')`
+  )
+    .bind(ticketCode, data.user.id, category_id, finalSkill, subject, description, user?.address_area || "Bukittinggi")
     .run();
-  return jsonResponse({ ok: true, ticket_code: ticketCode, message: "Keluhan diteruskan ke Admin & Owner." });
+
+  // Hitung berapa mitra dengan skill cocok yang aktif di sistem
+  const allMitra = await env.DB.prepare(
+    `SELECT mp.user_id, mp.skills_json, s.category_id
+     FROM mitra_profiles mp
+     LEFT JOIN services s ON s.mitra_id = mp.user_id
+     WHERE mp.verification_status = 'verified'`
+  ).all();
+
+  const matchedMitraIds = new Set();
+  for (const m of allMitra.results || []) {
+    const skills = JSON.parse(m.skills_json || "[]").map((x) => x.toLowerCase());
+    const skillMatch = finalSkill && skills.some((sk) => sk.includes(finalSkill.toLowerCase()) || finalSkill.toLowerCase().includes(sk));
+    const catMatch = category_id && Number(m.category_id) === Number(category_id);
+    if (skillMatch || catMatch) {
+      matchedMitraIds.add(m.user_id);
+    }
+  }
+
+  return jsonResponse({
+    ok: true,
+    ticket_code: ticketCode,
+    matched_mitra_count: matchedMitraIds.size,
+    message: `Pengajuan berhasil! Diteruskan khusus ke ${matchedMitraIds.size} Mitra dengan keahlian cocok untuk di-approve.`,
+  });
 }
