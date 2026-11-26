@@ -56,6 +56,8 @@
       <button class="tab-btn" onclick="switchMitraTab('wallet', this)">💰 Dompet, Token & Mitra Pro</button>
       <button class="tab-btn" onclick="switchMitraTab('profile', this)">🏢 Profil Bisnis & Verifikasi</button>
       <button class="tab-btn" onclick="switchMitraTab('chat', this)">💬 Chat Pelanggan</button>
+      <button class="tab-btn" onclick="switchMitraTab('complaints', this)">🎯 Keluhan Cocok Skill (Approve)</button>
+
     </div>
 
     <!-- TAB 1: PESANAN MASUK -->
@@ -65,6 +67,17 @@
         <div id="mitraOrdersList">Memuat...</div>
       </div>
     </section>
+
+    <section id="mtab-complaints" style="display:none;">
+  <div class="card">
+    <h3 style="margin-bottom:6px;">🎯 Keluhan & Permintaan Pelanggan Sesuai Keahlian Anda</h3>
+    <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
+      Sistem hanya menampilkan keluhan yang cocok dengan keahlian/kategori jasa Anda. Klik <strong>Approve Kerja</strong> untuk mengambil pekerjaan.
+    </p>
+    <div id="mitraMatchedComplaints">Memuat keluhan yang cocok...</div>
+  </div>
+</section>
+
 
     <!-- TAB 2: JASA, HARGA, KELAS & ADD-ON -->
     <section id="mtab-services" style="display:none;">
@@ -326,7 +339,8 @@
 
     async function saveMitraProfile(e) {
       e.preventDefault();
-      const certs = document.getElementById("mpCerts").value.split(/?
+      const certs = document.getElementById("mpCerts").value.split(/
+?
 /).filter(Boolean).map((l) => {
         const [title = "", issuer = "-", year = "2026"] = l.split("|").map((x) => x.trim());
         return { title, issuer, year };
