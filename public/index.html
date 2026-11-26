@@ -208,6 +208,82 @@
       `).join("");
     }
 
+
+    async function loadDynamicFeed() {
+  const data = await JK.api("/api/public/feed");
+  const container = document.getElementById("dynamicFeedContainer");
+
+  // KONDISI 1: SEBELUM LOGIN (Tampilkan 30 permintaan, keluhan & transaksi sukses)
+  if (data.mode === "public") {
+    document.getElementById("feedSectionTitle").textContent = "📡 30 Permintaan, Keluhan & Transaksi Pekerjaan Sukses di Area";
+    document.getElementById("feedSectionSub").textContent = "Login untuk menyembunyikan feed publik dan melihat seluruh riwayat pengajuan & pekerjaan selesai Anda.";
+    document.getElementById("feedCountBadge").textContent = `${data.total} Aktivitas Area`;
+
+    container.innerHTML = (data.feed || []).map((item) => `
+      <div style="border:1px solid var(--border); border-radius:12px; padding:12px; background:#fff;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span class="badge ${item.type === "transaksi_sukses" ? "badge-green" : "badge-amber"}">${item.badge}</span>
+          <small style="color:var(--muted);">📍 ${item.area}</small>
+        </div>
+        <strong style="font-size:0.92rem;">${item.title}</strong>
+        <div style="font-size:0.8rem; color:var(--muted); margin-top:4px;">${item.category} • Oleh: ${item.actor}</div>
+      </div>
+    `).join("") || "<p>Belum ada aktivitas area.</p>";
+    return;
+  }
+
+  // KONDISI 2: SAAT LOGIN (Hanya tampilkan semua riwayat pengajuan & pekerjaan selesai user)
+  document.getElementById("feedSectionTitle").textContent = "📂 Riwayat Pengajuan Keluhan & Pekerjaan Selesai Anda";
+  document.getElementById("feedSectionSub").textContent = "Seluruh status pengajuan keluhan yang di-approve mitra & pekerjaan selesai milik akun Anda.";
+  document.getElementById("feedCountBadge").textContent = `${(data.my_complaints?.length || 0) + (data.my_completed_orders?.length || 0)} Riwayat Anda`;
+
+  const compHtml = (data.my_complaints || []).map((c) => `
+    <div style="border:1px solid var(--border); border-radius:12px; padding:12px; background:#fff;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+        <strong>[${c.ticket_code}] ${c.subject}</strong>
+        <span class="badge ${c.status === "approved" ? "badge-green" : "badge-amber"}">${c.status.toUpperCase()}</span>
+      </div>
+      <div style="font-size:0.8rem; color:var(--muted);">Skill Dicari: ${c.category_name || c.skill_required || "-"}</div>
+      <p style="font-size:0.84rem; margin-top:4px;">${c.description}</p>
+      ${c.admin_reply ? `<div style="margin-top:6px; padding:8px; background:#ecfdf5; border-radius:8px; font-size:0.82rem; color:#065f46;"><strong>Respon Mitra:</strong> ${c.admin_reply}</div>` : ""}
+    </div>
+  `).join("");
+
+  const doneHtml = (data.my_completed_orders || []).map((o) => `
+    <div style="border:1px solid var(--border); border-radius:12px; padding:12px; background:#f8fafc;">
+      <div style="display:flex; justify-content:space-between;">
+        <strong>✅ ${o.service_title}</strong>
+        <span class="badge badge-green">PEKERJAAN SELESAI</span>
+      </div>
+      <div style="font-size:0.8rem; color:var(--muted); margin-top:4px;">
+        Invoice: ${o.order_code} • Mitra: ${o.business_name || o.mitra_name} • ${o.schedule_date} • <strong>${JK.rupiah(o.total_amount)}</strong>
+      </div>
+    </div>
+  `).join("");
+
+  container.innerHTML = (compHtml + doneHtml) || "<p>Anda belum memiliki riwayat pengajuan keluhan maupun pekerjaan selesai.</p>";
+}
+
+async function sendComplaint(e) {
+  e.preventDefault();
+  if (!JK.user) return (window.location.href = "/login.html");
+  const catEl = document.getElementById("cCatId");
+  const res = await JK.api("/api/user/profile", {
+    method: "POST",
+    body: JSON.stringify({
+      category_id: Number(catEl.value),
+      skill_required: catEl.options[catEl.selectedIndex]?.text || "",
+      subject: document.getElementById("cSubj").value,
+      description: document.getElementById("cDesc").value,
+    }),
+  });
+  alert(res.message);
+  e.target.reset();
+  loadDynamicFeed();
+}
+
+    
+
     function openBook(id) {
       selSrv = services.find((x) => x.id === id);
       if (!selSrv) return;
