@@ -97,11 +97,22 @@
         </div>
         <div class="card">
           <h3 style="margin-bottom:10px;">🚨 Kirim Keluhan / Masalah</h3>
-          <form onsubmit="sendComplaint(event)">
-            <div class="form-group"><label>Subjek</label><input type="text" id="cSubj" class="input" required /></div>
-            <div class="form-group"><label>Kronologi</label><textarea id="cDesc" rows="3" class="input" required></textarea></div>
-            <button type="submit" class="btn btn-primary">Kirim Tiket</button>
-          </form>
+<form onsubmit="sendComplaint(event)">
+  <div class="form-group">
+    <label>Pilih Kategori Keahlian Mitra yang Dibutuhkan</label>
+    <select id="cCatId" class="input" required></select>
+  </div>
+  <div class="form-group">
+    <label>Subjek Keluhan / Permintaan Jasa</label>
+    <input type="text" id="cSubj" class="input" placeholder="Contoh: Pipa ledeng kamar mandi bocor deras" required />
+  </div>
+  <div class="form-group">
+    <label>Detail Masalah & Lokasi</label>
+    <textarea id="cDesc" rows="3" class="input" placeholder="Jelaskan kronologi agar mitra dengan skill cocok bisa segera approve..." required></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary" style="width:100%;">🚀 Kirim ke Mitra dengan Skill Cocok</button>
+</form>
+
         </div>
       </div>
     </section>
