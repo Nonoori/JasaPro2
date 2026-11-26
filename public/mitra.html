@@ -381,6 +381,51 @@
       openMChat(activeCustomerId);
     }
 
+
+    async function loadMatchedComplaints() {
+  const data = await JK.api("/api/mitra/complaints");
+  const list = data.matched_complaints || [];
+  document.getElementById("mitraMatchedComplaints").innerHTML = list.map((c) => `
+    <div style="border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:10px;">
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+        <strong>[${c.ticket_code}] ${c.subject}</strong>
+        <span class="badge ${c.status === "open" ? "badge-amber" : "badge-green"}">${c.status.toUpperCase()}</span>
+      </div>
+      <div style="font-size:0.8rem; color:var(--muted); margin:4px 0;">
+        Pelanggan: ${c.customer_name} • Area: ${c.user_area} • Keahlian: <strong>${c.category_name || c.skill_required}</strong>
+      </div>
+      <p style="font-size:0.86rem; margin-bottom:8px;">${c.description}</p>
+      ${
+        c.status === "open"
+          ? `<button class="btn btn-primary btn-sm" onclick="approveComplaintJob(${c.id})">✅ Approve & Ambil Kerja Ini</button>`
+          : `<div style="font-size:0.82rem; color:var(--success); font-weight:600;">✓ Sudah Anda Approve (${JK.rupiah(c.offered_price)})</div>`
+      }
+      <button class="btn btn-outline btn-sm" onclick="openMChat(${c.user_id})">💬 Chat Pelanggan</button>
+    </div>
+  `).join("") || "<p>Belum ada keluhan pelanggan yang cocok dengan keahlian Anda saat ini.</p>";
+}
+
+async function approveComplaintJob(complaintId) {
+  const price = prompt("Masukkan estimasi harga kesepakatan pengerjaan (Rp):", "85000");
+  if (!price) return;
+  const note = prompt("Catatan persetujuan & estimasi waktu kedatangan:", "Siap datang hari ini dengan peralatan lengkap.");
+  try {
+    const res = await JK.api("/api/mitra/complaints", {
+      method: "POST",
+      body: JSON.stringify({
+        complaint_id: complaintId,
+        offered_price: Number(price),
+        admin_reply: note,
+      }),
+    });
+    alert(res.message);
+    loadMatchedComplaints();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+
     function switchMitraTab(name, btn) {
       ["orders", "services", "wallet", "profile", "chat"].forEach((t) => {
         document.getElementById("mtab-" + t).style.display = t === name ? "block" : "none";
